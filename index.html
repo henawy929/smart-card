@@ -30,6 +30,7 @@ h2{font-size:1.05rem;margin:26px 4px 12px}
 .qr{display:block;width:100%;max-width:230px;border-radius:14px;background:#fff}
 .card b{font-size:1.02rem}
 .sub{color:var(--mut);font-size:.82rem;direction:ltr;word-break:break-all}
+.sub.big{color:var(--ink);font-size:1.45rem;font-weight:700;letter-spacing:.5px;line-height:1.3}
 .hint{color:var(--mut);font-size:.8rem}
 .btn{display:block;width:100%;padding:11px;border-radius:14px;background:var(--blue);color:#fff;text-decoration:none;font-weight:700;margin-top:auto}
 .btn.o{background:var(--org)}
@@ -51,7 +52,7 @@ const items=[
  {n:'إنستجرام',s:'@henawy929',t:'https://www.instagram.com/henawy929',h:'https://www.instagram.com/henawy929',c:'افتح في إنستجرام'},
  {n:'واتساب',s:'01095640039',t:'https://wa.me/201095640039',h:'https://wa.me/201095640039',c:'افتح واتساب'},
  {n:'البريد الإلكتروني',s:'henawy9299@gmail.com',t:'mailto:henawy9299@gmail.com',h:'mailto:henawy9299@gmail.com',c:'أرسل بريد'},
- {n:'الهاتف',s:'01095640039',t:'BEGIN:VCARD\nVERSION:3.0\nFN:Henawy - Smart ViLadij\nORG:Smart ViLadij\nTEL;TYPE=CELL:'+PHONE+'\nEMAIL:henawy9299@gmail.com\nEND:VCARD',h:'tel:'+PHONE,c:'اتصل الآن',hint:'الكود يضيف جهة الاتصال للهاتف مباشرة',o:1}
+ {n:'الهاتف',s:'01095640039',t:'BEGIN:VCARD\nVERSION:3.0\nFN:Henawy - Smart ViLadij\nORG:Smart ViLadij\nTEL;TYPE=CELL:'+PHONE+'\nEMAIL:henawy9299@gmail.com\nEND:VCARD',h:'tel:'+PHONE,c:'اتصل الآن',big:1,o:1}
 ];
 function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
 function qrURL(text,img){
@@ -69,7 +70,7 @@ const img=new Image();
 img.onload=()=>{
   document.getElementById('grid').innerHTML=items.map(i=>{
     let u='';try{u=qrURL(i.t,img)}catch(e){}
-    return `<div class="card${i.main?' main':''}"><a href="${i.h}" style="width:100%;display:flex;justify-content:center"><img class="qr" src="${u}" alt="${i.n}"></a><b>${i.n}</b><span class="sub">${i.s}</span>${i.hint?`<span class="hint">${i.hint}</span>`:''}<a class="btn${i.o?' o':''}" href="${i.h}">${i.c}</a></div>`}).join('');
+    return `<div class="card${i.main?' main':''}"><a href="${i.h}" style="width:100%;display:flex;justify-content:center"><img class="qr" src="${u}" alt="${i.n}"></a><b>${i.n}</b><span class="sub${i.big?' big':''}">${i.s}</span>${i.hint?`<span class="hint">${i.hint}</span>`:''}<a class="btn${i.o?' o':''}" href="${i.h}">${i.c}</a></div>`}).join('');
 };
 img.src=LOGO;
 </script>
