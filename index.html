@@ -30,6 +30,11 @@ h2{font-size:1.05rem;margin:26px 4px 12px}
 .qr{display:block;width:100%;max-width:230px;border-radius:14px;background:#fff}
 .card b{font-size:1.02rem}
 .sub{color:var(--mut);font-size:.82rem;direction:ltr;word-break:break-all}
+.grid.three{grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.grid.three .card{padding:12px 8px;border-radius:18px;gap:6px}
+.grid.three .qr{max-width:100%}
+.grid.three .card b{font-size:.9rem}
+@media (max-width:380px){.grid.three{gap:6px}.grid.three .card{padding:9px 5px;border-radius:14px}.grid.three .card b{font-size:.78rem}}
 .sub.big{color:var(--ink);font-size:1.45rem;font-weight:700;letter-spacing:.5px;line-height:1.3}
 .hint{color:var(--mut);font-size:.8rem}
 .btn{display:block;width:100%;padding:11px;border-radius:14px;background:var(--blue);color:#fff;text-decoration:none;font-weight:700;margin-top:auto}
@@ -41,6 +46,7 @@ h2{font-size:1.05rem;margin:26px 4px 12px}
 <main>
   <div class="hero"><div class="logo" role="img" aria-label="Smart ViLadij"></div></div>
   <h2>امسح أي كود أو اضغط عليه</h2>
+  <div class="grid three" id="social"></div>
   <div class="grid" id="grid"></div>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
@@ -48,9 +54,9 @@ h2{font-size:1.05rem;margin:26px 4px 12px}
 const LOGO=getComputedStyle(document.documentElement).getPropertyValue('--logo').trim().replace(/^url\(\s*["']?/,'').replace(/["']?\s*\)$/,'');
 const PHONE='+201095640039';
 const items=[
- {n:'فيسبوك',s:'facebook.com/share/1Gzvt2r2WG',t:'https://www.facebook.com/share/1Gzvt2r2WG/',h:'https://www.facebook.com/share/1Gzvt2r2WG/',c:'افتح في فيسبوك'},
- {n:'إنستجرام',s:'@henawy929',t:'https://www.instagram.com/henawy929',h:'https://www.instagram.com/henawy929',c:'افتح في إنستجرام'},
- {n:'واتساب',s:'01095640039',t:'https://wa.me/201095640039',h:'https://wa.me/201095640039',c:'افتح واتساب'},
+ {n:'فيسبوك',t:'https://www.facebook.com/share/1Gzvt2r2WG/',h:'https://www.facebook.com/share/1Gzvt2r2WG/',soc:1},
+ {n:'إنستجرام',t:'https://www.instagram.com/henawy929',h:'https://www.instagram.com/henawy929',soc:1},
+ {n:'واتساب',t:'https://wa.me/201095640039',h:'https://wa.me/201095640039',soc:1},
  {n:'البريد الإلكتروني',s:'henawy9299@gmail.com',t:'mailto:henawy9299@gmail.com',h:'mailto:henawy9299@gmail.com',c:'أرسل بريد'},
  {n:'الهاتف',s:'01095640039',t:'BEGIN:VCARD\nVERSION:3.0\nFN:Henawy - Smart ViLadij\nORG:Smart ViLadij\nTEL;TYPE=CELL:'+PHONE+'\nEMAIL:henawy9299@gmail.com\nEND:VCARD',h:'tel:'+PHONE,c:'اتصل الآن',big:1,o:1}
 ];
@@ -67,10 +73,13 @@ function qrURL(text,img){
   return c.toDataURL('image/png');
 }
 const img=new Image();
+const cardHTML=i=>{
+  let u='';try{u=qrURL(i.t,img)}catch(e){}
+  return `<div class="card${i.soc?' soc':''}"><a href="${i.h}" style="width:100%;display:flex;justify-content:center" aria-label="${i.n}"><img class="qr" src="${u}" alt="${i.n}"></a><b>${i.n}</b>${i.s?`<span class="sub${i.big?' big':''}">${i.s}</span>`:''}${i.hint?`<span class="hint">${i.hint}</span>`:''}${i.c?`<a class="btn${i.o?' o':''}" href="${i.h}">${i.c}</a>`:''}</div>`;
+};
 img.onload=()=>{
-  document.getElementById('grid').innerHTML=items.map(i=>{
-    let u='';try{u=qrURL(i.t,img)}catch(e){}
-    return `<div class="card${i.main?' main':''}"><a href="${i.h}" style="width:100%;display:flex;justify-content:center"><img class="qr" src="${u}" alt="${i.n}"></a><b>${i.n}</b><span class="sub${i.big?' big':''}">${i.s}</span>${i.hint?`<span class="hint">${i.hint}</span>`:''}<a class="btn${i.o?' o':''}" href="${i.h}">${i.c}</a></div>`}).join('');
+  document.getElementById('social').innerHTML=items.filter(i=>i.soc).map(cardHTML).join('');
+  document.getElementById('grid').innerHTML=items.filter(i=>!i.soc).map(cardHTML).join('');
 };
 img.src=LOGO;
 </script>
