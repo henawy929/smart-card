@@ -52,10 +52,22 @@ h2{font-size:1.05rem;margin:26px 4px 12px;color:#F3DFDC;font-weight:700;letter-s
 .btn{display:block;width:100%;padding:11px;border-radius:14px;color:#FBEEEC;text-decoration:none;font-weight:700;margin-top:auto;background:linear-gradient(135deg,#6B1E23,#3C1216);border:1px solid rgba(255,235,230,.18);box-shadow:0 8px 18px rgba(0,0,0,.38);transition:transform .3s ease,filter .3s ease,box-shadow .3s ease}
 .btn:hover{transform:translateY(-2px);filter:brightness(1.18);box-shadow:0 12px 22px rgba(0,0,0,.45)}
 .btn.o{background:linear-gradient(135deg,#A8323A,#6B1E23)}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}body::before{animation:none}.card{opacity:1}.card:hover{transform:none}}
+.bg-anim{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg-anim .star{position:absolute;display:block;border-radius:50%;width:2px;height:2px;opacity:.35;background:radial-gradient(circle,#fff 0%,rgba(255,214,214,.9) 55%,rgba(255,255,255,0) 72%);animation:twinkle var(--dur,5s) ease-in-out infinite alternate}
+@keyframes twinkle{0%{opacity:.14;translate:0 0}100%{opacity:var(--op,.8);translate:0 -7px}}
+.bg-anim .dev{position:absolute;display:block;color:rgba(255,226,226,.13);animation:floaty var(--dur,24s) ease-in-out infinite alternate;animation-delay:var(--del,0s)}
+.bg-anim .dev svg{display:block;width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+@keyframes floaty{from{transform:translate3d(0,0,0) rotate(var(--rot,0deg))}to{transform:translate3d(var(--dx,18px),var(--dy,-26px),0) rotate(calc(var(--rot,0deg) + 5deg))}}
+.bg-anim .threads{position:absolute;inset:0;width:100%;height:100%}
+.bg-anim .thread{fill:none;stroke:rgba(214,86,96,.17);stroke-width:1.1;vector-effect:non-scaling-stroke}
+.bg-anim .thread.pulse{stroke:rgba(255,150,158,.9);stroke-width:1.9;stroke-dasharray:30 320;stroke-linecap:round;opacity:.9;animation:flow 6s linear infinite;filter:drop-shadow(0 0 5px rgba(255,120,130,.55))}
+.bg-anim .node{fill:rgba(255,170,176,.55)}
+@keyframes flow{from{stroke-dashoffset:350}to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}body::before{animation:none}.card{opacity:1}.card:hover{transform:none}.bg-anim .thread.pulse{display:none}.bg-anim .dev{opacity:.5}}
 </style>
 </head>
 <body>
+<div class="bg-anim" id="bgAnim" aria-hidden="true"></div>
 <main>
   <div class="hero"><div class="logo" role="img" aria-label="Smart ViLadij"></div></div>
   <h2>امسح أي كود أو اضغط عليه</h2>
@@ -105,6 +117,66 @@ img.onload=()=>{
   document.getElementById('grid').innerHTML=items.filter(i=>!i.soc).map(cardHTML).join('');
   revealAll();
 };
+/* ---------- animated background: stars + devices + electric threads ---------- */
+(()=>{
+  const layer=document.getElementById('bgAnim');
+  if(!layer) return;
+  const compact=matchMedia('(max-width:640px)').matches;
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+  const put=(el,props)=>{for(const k in props) el.style.setProperty(k,props[k]);};
+
+  /* stars */
+  const starCount=compact?26:46;
+  for(let k=0;k<starCount;k++){
+    const st=document.createElement('span');
+    st.className='star';
+    const sz=rnd(1,2.8);
+    put(st,{'left':rnd(0,100).toFixed(2)+'%','top':rnd(0,100).toFixed(2)+'%','width':sz.toFixed(2)+'px','height':sz.toFixed(2)+'px','--dur':rnd(3,7).toFixed(1)+'s','--op':rnd(.35,.9).toFixed(2),'animation-delay':rnd(0,6).toFixed(1)+'s'});
+    layer.appendChild(st);
+  }
+
+  /* electronic devices */
+  const icons=[
+    '<svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2.4"/><path d="M11 18.5h2"/></svg>',
+    '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="11" rx="1.6"/><path d="M2 19h20"/></svg>',
+    '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M9 3h6M9 21h6"/></svg>',
+    '<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2.4"/><path d="M2 10h20M6 15h4"/></svg>',
+    '<svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 2v5M14 2v5M10 17v5M14 17v5M2 10h5M2 14h5M17 10h5M17 14h5"/></svg>',
+    '<svg viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="3.4" height="6" rx="1.6"/><rect x="17.6" y="14" width="3.4" height="6" rx="1.6"/></svg>',
+    '<svg viewBox="0 0 24 24"><rect x="2" y="8" width="17" height="9" rx="2.2"/><path d="M21.5 11v3"/></svg>',
+    '<svg viewBox="0 0 24 24"><path d="M4.5 12.5a10 10 0 0 1 15 0M8 15.5a6 6 0 0 1 8 0"/><circle cx="12" cy="18.6" r="1.1"/></svg>'
+  ];
+  const devCount=compact?5:9;
+  for(let k=0;k<devCount;k++){
+    const d=document.createElement('span');
+    d.className='dev';
+    const size=rnd(26,64);
+    d.innerHTML=icons[k%icons.length];
+    put(d,{'left':rnd(0,92).toFixed(2)+'%','top':rnd(2,92).toFixed(2)+'%','width':size.toFixed(0)+'px','height':size.toFixed(0)+'px','--dur':rnd(18,34).toFixed(1)+'s','--del':(-rnd(0,18)).toFixed(1)+'s','--dx':rnd(-40,40).toFixed(0)+'px','--dy':rnd(-50,30).toFixed(0)+'px','--rot':rnd(-8,8).toFixed(1)+'deg','opacity':(0.55+Math.random()*0.45).toFixed(2)});
+    layer.appendChild(d);
+  }
+
+  /* electric threads */
+  const NS='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(NS,'svg');
+  svg.setAttribute('class','threads');svg.setAttribute('viewBox','0 0 1000 1000');svg.setAttribute('preserveAspectRatio','none');
+  const traceCount=compact?5:8, ends=[];
+  for(let t=0;t<traceCount;t++){
+    let x=rnd(20,980),y=rnd(20,980),d='M'+x.toFixed(0)+' '+y.toFixed(0);
+    const start=[x,y];
+    for(let seg=0;seg<4;seg++){
+      x=Math.min(980,Math.max(20,x+rnd(-190,190)));d+=' L'+x.toFixed(0)+' '+y.toFixed(0);
+      y=Math.min(980,Math.max(20,y+rnd(-170,170)));d+=' L'+x.toFixed(0)+' '+y.toFixed(0);
+    }
+    const base=document.createElementNS(NS,'path');base.setAttribute('d',d);base.setAttribute('class','thread');
+    const pulse=document.createElementNS(NS,'path');pulse.setAttribute('d',d);pulse.setAttribute('class','thread pulse');
+    pulse.style.animationDuration=rnd(4,9).toFixed(1)+'s';pulse.style.animationDelay=(-rnd(0,9)).toFixed(1)+'s';
+    svg.appendChild(base);svg.appendChild(pulse);
+    ends.push(start,[x,y]);
+  }
+  ends.forEach(([cx,cy])=>{const c=document.createElementNS(NS,'circle');c.setAttribute('cx',cx.toFixed(0));c.setAttribute('cy',cy.toFixed(0));c.setAttribute('r','2.4');c.setAttribute('class','node');svg.appendChild(c);});
+  layer.appendChild(svg);
+})();
 img.src=LOGO;
 </script>
 </body>
